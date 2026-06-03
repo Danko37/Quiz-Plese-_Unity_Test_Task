@@ -5,13 +5,27 @@ using UnityEngine;
 
 namespace GUI.Forms
 {
+    /// <summary>
+    /// Класс подгружает ui формы в зависимости от типа переданной модели представления.
+    /// </summary>
     public class UIFormLoader : MonoBehaviour, IUIFormLoader
     {
+        /// <summary>
+        /// Ожидается, что имя префаба формы в папке Resources/Forms будет совпадать с именем типа модели представления без суффикса "ViewModel".
+        /// </summary>
         public const string VIEW_MODEL_SUFFIX = "ViewModel";
+        /// <summary>
+        /// Путь до префабов ui относительно папки resources
+        /// </summary>
         private const string FORMS_PATH = "Forms/";
 
         [SerializeField] private RectTransform _root;
 
+        /// <summary>
+        /// Метод подгружает и отображает ui форму. Вызывает байндинг
+        /// </summary>
+        /// <param name="viewModel"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void ShowForm(IViewModel viewModel)
         {
             if (viewModel == null)
@@ -21,9 +35,12 @@ namespace GUI.Forms
 
             var view = LoadFormView(viewModel);
             view.Bind(viewModel);
-            AttachHandle(viewModel, view);
+            AttachDisposeHandle(viewModel, view);
         }
 
+        /// <summary>
+        /// Метод подгружает и инстантейтит форму по типу вью модели. Возвращает вьюшку формы 
+        /// </summary>
         private ViewBase LoadFormView(IViewModel viewModel)
         {
             if (viewModel == null)
@@ -35,42 +52,57 @@ namespace GUI.Forms
             var vmType = viewModel.GetType();
             var resourcePath = BuildResourcePath(vmType);
 
+            //подгружаем форму из ресурсов. Это может быть как адрессаблс, так и самописный dlc загрузчик
             var prefab = Resources.Load<GameObject>(resourcePath);
             if (prefab == null)
                 throw new InvalidOperationException($"Prefab not found at Resources/{resourcePath} for {vmType.Name}.");
 
-            var instance = Instantiate(prefab, _root, false);
+            var formInstance = Instantiate(prefab, _root, false);
 
-            var view = instance.GetComponent<ViewBase>();
+            var view = formInstance.GetComponent<ViewBase>();
             if (view == null)
             {
-                Destroy(instance);
+                Destroy(formInstance);
                 throw new InvalidOperationException($"Prefab at Resources/{resourcePath} has no {nameof(ViewBase)} component.");
             }
 
             return view;
         }
 
-        private void AttachHandle(IViewModel viewModel, ViewBase view)
+        /// <summary>
+        /// Метод собирает данные для dispose и добавляет их 
+        /// </summary>
+        /// <param name="viewModel"></param>
+        /// <param name="view"></param>
+        private void AttachDisposeHandle(IViewModel viewModel, ViewBase view)
         {
-            var handle = new FormHandle(view.gameObject, view, viewModel);
+            var handle = new FormDisposeHandle(view.gameObject, view, viewModel);
             (viewModel as ViewModel)?.SetHideHandle(handle);
         }
 
+        /// <summary>
+        /// Метод вырезает из имени типа модели представления суффикс "ViewModel" и строит путь до префаба формы относительно папки Resources/Forms.
+        /// </summary>
+        /// <param name="vmType"></param>
+        /// <returns></returns>
         private static string BuildResourcePath(Type vmType)
         {
             var typeName = vmType.Name;
             return FORMS_PATH + typeName.Replace(VIEW_MODEL_SUFFIX, string.Empty);
         }
 
-        private sealed class FormHandle : IDisposable
+        /// <summary>
+        /// Класс, который инкапсулирует в себе данные для корректного освобождения ресурсов формы.
+        /// При вызове Dispose удаляет форму и вызывает метод Release у вьюшки, а также освобождает ресурсы модели представления.
+        /// </summary>
+        private class FormDisposeHandle : IDisposable
         {
             private GameObject _instance;
             private ViewBase _view;
             private IViewModel _viewModel;
             private bool _disposed;
 
-            public FormHandle(GameObject instance, ViewBase view, IViewModel viewModel)
+            public FormDisposeHandle(GameObject instance, ViewBase view, IViewModel viewModel)
             {
                 _instance = instance;
                 _view = view;

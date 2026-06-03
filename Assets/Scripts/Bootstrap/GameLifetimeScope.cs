@@ -8,6 +8,9 @@ using VContainer.Unity;
 
 namespace Bootstrap
 {
+    /// <summary>
+    /// Регистрирукем зависимости : ui билдер, стейты, точку входа в приложение
+    /// </summary>
     public class GameLifetimeScope : LifetimeScope
     {
         [SerializeField] private UIFormLoader _formLoader;

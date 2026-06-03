@@ -30,11 +30,13 @@ namespace StateMachine.States
             _screenViewModel = new LoadingScreenViewModel(_progress);
             _formLoader.ShowForm(_screenViewModel);
 
+            //эмитация загрузки разных этапов
             for (var step = 1; step <= StepCount; step++)
             {
                 await UniTask.Delay(StepDelayMs, cancellationToken: ct);
                 _progress.Value = (float)step / StepCount;
 
+                //если произошла отмена - не грузим следующий этап
                 if (ct.IsCancellationRequested)
                 {
                     break;

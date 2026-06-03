@@ -6,12 +6,13 @@ using UnityEngine.UI;
 
 namespace GUI.Views
 {
+    /// <summary>
+    /// Вью для отображения прогресса загрузки приложения.
+    /// </summary>
     public class LoadingUIView : View<LoadingScreenViewModel>
     {
         [SerializeField] private Slider _progressBar;
         [SerializeField] private TMP_Text _percentText;
-
-        private readonly CompositeDisposable _disposables = new();
 
         public override void Bind(LoadingScreenViewModel screenViewModel)
         {
@@ -19,12 +20,12 @@ namespace GUI.Views
 
             screenViewModel.Progress
                 .Subscribe(OnProgressChanged)
-                .AddTo(_disposables);
+                .AddTo(Disposables);
         }
 
         public override void Release()
         {
-            _disposables.Dispose();
+            Disposables.Dispose();
             base.Release();
         }
 

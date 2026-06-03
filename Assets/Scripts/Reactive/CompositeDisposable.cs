@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace Reactive
 {
+    /// <summary>
+    /// Собирает в себе объекты для диспозинга.
+    /// Удобно для управления временем жизни объектов, например, подписок на команды.
+    /// </summary>
     public class CompositeDisposable
     {
         private readonly List<IDisposable> _items = new();

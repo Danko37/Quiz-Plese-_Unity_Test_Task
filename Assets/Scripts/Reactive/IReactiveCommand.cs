@@ -1,18 +1,12 @@
-using System;
-
 namespace Reactive
 {
-    public interface IReactiveCommand
+    public interface IReactiveCommand : IObserved
     {
-        IDisposable Subscribe(Action cb);
-        void Unsubscribe(Action cb);
         void Execute();
     }
 
-    public interface IReactiveCommand<T>
+    public interface IReactiveCommand<T> : IObserved<T>
     {
-        IDisposable Subscribe(Action<T> cb);
-        void Unsubscribe(Action<T> cb);
         void Execute(T parameter);
     }
 }

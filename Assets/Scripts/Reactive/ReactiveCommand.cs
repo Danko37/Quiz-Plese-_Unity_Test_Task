@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace Reactive
 {
-    public class ReactiveCommand : IReactiveCommand, IDisposable
+    public class ReactiveCommand : IReactiveCommand
     {
         private readonly List<Action> _subscribers = new();
 
         [NonSerialized] private bool _isDisposed;
 
-        public IDisposable Subscribe(Action cb)
+        public IDisposable Subscribe(Action cb, bool invokeImmediately = true)
         {
             CheckDisposed();
 
@@ -17,6 +17,8 @@ namespace Reactive
                 throw new ArgumentNullException(nameof(cb));
 
             _subscribers.Add(cb);
+
+            // invokeImmediately ignored: a command has no current value to replay.
 
             return new Subscription(this, cb);
         }
@@ -88,13 +90,17 @@ namespace Reactive
         }
     }
 
-    public class ReactiveCommand<T> : IReactiveCommand<T>, IDisposable
+    /// <summary>
+    /// Событие, которое может быть выполнено с параметром типа T.
+    /// Подписчики будут уведомлены при вызове Execute с этим параметром.
+    /// </summary>
+    public class ReactiveCommand<T> : IReactiveCommand<T>
     {
         private readonly List<Action<T>> _subscribers = new();
 
         [NonSerialized] private bool _isDisposed;
 
-        public IDisposable Subscribe(Action<T> cb)
+        public IDisposable Subscribe(Action<T> cb, bool invokeImmediately = true)
         {
             CheckDisposed();
 
@@ -103,7 +109,9 @@ namespace Reactive
 
             _subscribers.Add(cb);
 
-            return new Subscription(this, cb);
+            // invokeImmediately ignored: a command has no current value to replay.
+
+            return new Subscription<T>(this, cb);
         }
 
         public void Unsubscribe(Action<T> cb)
@@ -141,35 +149,17 @@ namespace Reactive
             _isDisposed = true;
             _subscribers.Clear();
 
+            //Просим GC не вызывать деструктор при сборке мусора
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Если кто то вручную не вызовет Dispose, то при сборке мусора будет вызван деструктор, который вызовет Dispose.
+        /// </summary>
         ~ReactiveCommand()
         {
             Dispose();
         }
-
-        private sealed class Subscription : IDisposable
-        {
-            private ReactiveCommand<T> _owner;
-            private Action<T> _callback;
-
-            public Subscription(ReactiveCommand<T> owner, Action<T> callback)
-            {
-                _owner = owner;
-                _callback = callback;
-            }
-
-            public void Dispose()
-            {
-                if (_owner == null)
-                    return;
-
-                _owner.Unsubscribe(_callback);
-
-                _owner = null;
-                _callback = null;
-            }
-        }
+        
     }
 }

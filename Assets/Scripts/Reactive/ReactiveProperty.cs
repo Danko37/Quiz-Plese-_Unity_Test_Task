@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Reactive
 {
+    /// <summary>
+    /// Свойство для хранения значения и уведомления подписчиков при его изменении.
+    /// </summary>
     public class ReactiveProperty<T> : IReactiveProperty<T>
     {
         private readonly List<Action<T>> _subscribers = new();
@@ -80,6 +83,9 @@ namespace Reactive
             _subscribers.Remove(cb);
         }
 
+        /// <summary>
+        /// Позволяет установить значение и уведомить подписчиков, даже если новое значение равно текущему.
+        /// </summary>
         public void SetValueAndForceNotify(T value)
         {
             CheckDisposed();
@@ -97,9 +103,13 @@ namespace Reactive
             _isDisposed = true;
             _subscribers.Clear();
             
+            //если мы вручную вызываем Dispose, то просим гарбадж коллектор не вызывать деструктор
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Если кто то не освобождает объект вручную, то деструктор гарантирует, что ресурсы будут освобождены при сборке мусора.
+        /// </summary>
         ~ReactiveProperty()
         {
             Dispose();

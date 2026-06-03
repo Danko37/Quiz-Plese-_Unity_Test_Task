@@ -4,6 +4,9 @@ using UnityEngine.UI;
 
 namespace GUI.Views
 {
+    /// <summary>
+    /// Вьюшка главного меню
+    /// </summary>
     public class MenuUIView : View<MenuScreenViewModel>
     {
         [SerializeField] private Button _restartButton;
@@ -16,6 +19,16 @@ namespace GUI.Views
                 _restartButton.onClick.AddListener(OnRestartClicked);
         }
 
+        public override void Release()
+        {
+            base.Release();
+            if (_restartButton != null)
+                _restartButton.onClick.RemoveListener(OnRestartClicked);
+        }
+
+        /// <summary>
+        /// По нажатию на кнопку перезапускаем игру
+        /// </summary>
         private void OnRestartClicked()
         {
             GetViewModel.RestartCommand.Execute();

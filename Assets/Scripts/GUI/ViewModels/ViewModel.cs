@@ -3,7 +3,7 @@ using Reactive;
 
 namespace GUI.ViewModels
 {
-    public abstract class ViewModel : IViewModel
+    public class ViewModel : IViewModel
     {
         protected readonly CompositeDisposable Disposables = new();
 
