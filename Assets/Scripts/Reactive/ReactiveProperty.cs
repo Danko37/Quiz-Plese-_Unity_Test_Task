@@ -22,11 +22,18 @@ namespace Reactive
                     return;
 
                 _value = value;
-                
-                foreach (var subscriber in _subscribers)
-                {
-                    subscriber(_value);
-                }
+
+                NotifySubscribers();
+            }
+        }
+
+        private void NotifySubscribers()
+        {
+            var snapshot = new Action<T>[_subscribers.Count];
+            _subscribers.CopyTo(snapshot);
+            foreach (var subscriber in snapshot)
+            {
+                subscriber(_value);
             }
         }
 
@@ -78,13 +85,10 @@ namespace Reactive
         public void SetValueAndForceNotify(T value)
         {
             CheckDisposed();
-            
+
             _value = value;
-            
-            foreach (var subscriber in _subscribers)
-            {
-                subscriber(_value);
-            }
+
+            NotifySubscribers();
         }
 
         public void Dispose()
