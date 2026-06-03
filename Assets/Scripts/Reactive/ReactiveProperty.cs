@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Reactive
 {
-    public class ReactiveProperty<T> : IReactiveProperty<T>, IDisposable
+    public class ReactiveProperty<T> : IReactiveProperty<T>
     {
         private readonly List<Action<T>> _subscribers = new();
 
@@ -54,8 +54,6 @@ namespace Reactive
         {
             _value = value;
         }
-
-        public event Action<T> OnChanged;
 
         public IDisposable Subscribe(Action<T> cb, bool invokeImmediately = true)
         {

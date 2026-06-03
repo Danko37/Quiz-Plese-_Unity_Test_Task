@@ -7,5 +7,10 @@ namespace GUI.Views
     {
         public abstract void Bind(IViewModel viewModel);
         public abstract void Release();
+
+        protected virtual void OnDestroy()
+        {
+            Release();
+        }
     }
 }

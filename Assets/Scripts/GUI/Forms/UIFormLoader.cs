@@ -5,9 +5,10 @@ using UnityEngine;
 
 namespace GUI.Forms
 {
-    public class UIFormLoader : MonoBehaviour
+    public class UIFormLoader : MonoBehaviour, IUIFormLoader
     {
         private const string VIEW_MODEL_SUFFIX = "ViewModel";
+        private const string FORMS_PATH = "Forms/";
 
         [SerializeField] private RectTransform _root;
 
@@ -21,7 +22,7 @@ namespace GUI.Forms
             AttachHandle(viewModel, view);
         }
 
-        protected ViewBase LoadFormView(IViewModel viewModel)
+        private ViewBase LoadFormView(IViewModel viewModel)
         {
             if (viewModel == null)
                 throw new ArgumentNullException(nameof(viewModel));
@@ -57,7 +58,7 @@ namespace GUI.Forms
         private static string BuildResourcePath(Type vmType)
         {
             var typeName = vmType.Name;
-            return typeName.Replace(VIEW_MODEL_SUFFIX, string.Empty);
+            return FORMS_PATH + typeName.Replace(VIEW_MODEL_SUFFIX, string.Empty);
         }
 
         private sealed class FormHandle : IDisposable
