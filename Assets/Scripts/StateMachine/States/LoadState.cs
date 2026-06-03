@@ -34,6 +34,11 @@ namespace StateMachine.States
             {
                 await UniTask.Delay(StepDelayMs, cancellationToken: ct);
                 _progress.Value = (float)step / StepCount;
+
+                if (ct.IsCancellationRequested)
+                {
+                    break;
+                }
             }
 
             var states = _resolver.Resolve<IStatesController<AppState>>();

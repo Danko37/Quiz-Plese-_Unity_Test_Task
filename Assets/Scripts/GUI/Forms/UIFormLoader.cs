@@ -7,7 +7,7 @@ namespace GUI.Forms
 {
     public class UIFormLoader : MonoBehaviour, IUIFormLoader
     {
-        private const string VIEW_MODEL_SUFFIX = "ViewModel";
+        public const string VIEW_MODEL_SUFFIX = "ViewModel";
         private const string FORMS_PATH = "Forms/";
 
         [SerializeField] private RectTransform _root;
@@ -15,7 +15,9 @@ namespace GUI.Forms
         public void ShowForm(IViewModel viewModel)
         {
             if (viewModel == null)
+            {
                 throw new ArgumentNullException(nameof(viewModel));
+            }
 
             var view = LoadFormView(viewModel);
             view.Bind(viewModel);
@@ -49,7 +51,7 @@ namespace GUI.Forms
             return view;
         }
 
-        protected void AttachHandle(IViewModel viewModel, ViewBase view)
+        private void AttachHandle(IViewModel viewModel, ViewBase view)
         {
             var handle = new FormHandle(view.gameObject, view, viewModel);
             (viewModel as ViewModel)?.SetHideHandle(handle);
