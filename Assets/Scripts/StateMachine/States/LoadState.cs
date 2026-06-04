@@ -9,8 +9,8 @@ namespace StateMachine.States
 {
     public class LoadState : IState
     {
-        private const int StepCount = 5;
-        private const int StepDelayMs = 200;
+        private const int STEP_COUNT = 5;
+        private const int STEP_DELAY_MS = 200;
 
         private readonly IUIFormLoader _formLoader;
         private readonly IObjectResolver _resolver;
@@ -31,10 +31,10 @@ namespace StateMachine.States
             _formLoader.ShowForm(_screenViewModel);
 
             //эмитация загрузки разных этапов
-            for (var step = 1; step <= StepCount; step++)
+            for (var step = 1; step <= STEP_COUNT; step++)
             {
-                await UniTask.Delay(StepDelayMs, cancellationToken: ct);
-                _progress.Value = (float)step / StepCount;
+                await UniTask.Delay(STEP_DELAY_MS, cancellationToken: ct);
+                _progress.Value = (float)step / STEP_COUNT;
 
                 //если произошла отмена - не грузим следующий этап
                 if (ct.IsCancellationRequested)

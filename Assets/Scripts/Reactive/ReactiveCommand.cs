@@ -138,7 +138,9 @@ namespace Reactive
         private void CheckDisposed()
         {
             if (_isDisposed)
+            {
                 throw new ObjectDisposedException(nameof(ReactiveCommand<T>));
+            }
         }
 
         public void Dispose()
